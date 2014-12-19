@@ -1,0 +1,99 @@
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="formation.js"></script>
+
+<p class="js-form-status"></p>
+
+<form class="js-form">
+    <p>
+        <input type="text" name="name" placeholder="Name" class="js-name">
+        <span class="js-name-status"></span>
+    </p>
+    <p>
+        <input type="text" name="email" placeholder="Email" class="js-email">
+        <span class="js-email-status"></span>
+    </p>
+    <p>
+        <input type="submit">
+    </p>
+</form>
+
+<script>
+
+    $formStatus = $('.js-form-status');
+    $form = $('.js-form');
+    $inputUserName = $('.js-form .js-name');
+    $inputUserNameStatus = $('.js-form .js-name-status');
+    $inputEmail = $('.js-form .js-email');
+    $inputEmailStatus = $('.js-form .js-email-status');
+
+    /**
+     * Fake API
+     * @type {{isUniqueEmail: Function}}
+     */
+    var Api = {
+        isUniqueEmail: function (email) {
+            var deferred = $.Deferred();
+            setTimeout(function () {
+                deferred.resolve(Formation.VALIDATORS.EMAIL.test($inputEmail.val()));
+            }, 250);
+            return deferred.promise();
+        }
+    };
+
+    /**
+     * Formation
+     * @type {Formation}
+     */
+    var form = new Formation({
+        selector: $form,
+        error: function (inputs) {
+            var errors;
+            $.each(inputs, function (i, input) {
+                errors = errors ? errors + (', ' + input.optionalCustomNameOrSomething) : input.optionalCustomNameOrSomething;
+            });
+            $formStatus.text('Failed to validate ' + errors).css({ color: 'red' });
+        },
+        validating: function () {
+            $formStatus.text('Validating form...').css({ color: 'grey' }).show();
+        },
+        success: function () {
+            $formStatus.text('All good').css({ color: 'green' });
+        },
+        inputs: [
+            {
+                optionalCustomNameOrSomething: 'username',
+                selector: function () {
+                    return $inputUserName;
+                },
+                validator: function (value) {
+                    return value.length > 3;
+                },
+                error: function (value) {
+                    $inputUserNameStatus.text('Error validating ' + value).css({ color: 'red' }).show();
+                },
+                success: function (value) {
+                    $inputUserNameStatus.text('').hide();
+                }
+            },
+            {
+                optionalCustomNameOrSomething: 'email',
+                selector: $inputEmail,
+                validator: Api.isUniqueEmail,
+                validating: function (value) {
+                    $inputEmailStatus.text('Checking if unique email').css({ color: 'grey' }).show();
+                },
+                error: function (value) {
+                    if (!value) {
+                        $inputEmailStatus.text('Please insert valid email').css({ color: 'red' }).show();
+                    } else {
+                        $inputEmailStatus.text(value + ' is already taken').css({ color: 'red' }).show();
+                    }
+                },
+                success: function (value) {
+                    $inputEmailStatus.text('').hide();
+                }
+            }
+        ]
+    });
+
+</script>
