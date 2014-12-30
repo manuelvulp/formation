@@ -1,5 +1,23 @@
 <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="formation.js"></script>
+<style>
+
+    .console {
+        background: #333;
+        color: #EEE;
+        font-family: monospace;
+        padding: 20px;
+    }
+
+    .console p.success {
+        color: green;
+    }
+
+    .console p.error {
+        color: red;
+    }
+
+</style>
 
 <p class="js-form-status"></p>
 
@@ -17,14 +35,26 @@
     </p>
 </form>
 
+<div class="js-console console"></div>
+
 <script>
 
+    $console = $('.js-console');
     $formStatus = $('.js-form-status');
     $form = $('.js-form');
     $inputUserName = $('.js-form .js-name');
     $inputUserNameStatus = $('.js-form .js-name-status');
     $inputEmail = $('.js-form .js-email');
     $inputEmailStatus = $('.js-form .js-email-status');
+
+    var TYPES = {
+        'ERROR': 'error',
+        'SUCCESS': 'success'
+    };
+
+    var logText = function (text, type) {
+        $console.append('<p' + (type  ? ' class="' + type + '"' : '') + '>' + text + '</p>');
+    };
 
     /**
      * Fake API
@@ -52,12 +82,17 @@
                 errors = errors ? errors + (', ' + input.optionalCustomNameOrSomething) : input.optionalCustomNameOrSomething;
             });
             $formStatus.text('Failed to validate ' + errors).css({ color: 'red' });
+            logText('form.error', TYPES.ERROR);
+            logText('-------- Done --------');
         },
         validating: function () {
             $formStatus.text('Validating form...').css({ color: 'grey' }).show();
+            logText('form.validating');
         },
         success: function () {
             $formStatus.text('All good').css({ color: 'green' });
+            logText('form.success', TYPES.SUCCESS);
+            logText('-------- Done --------');
         },
         inputs: [
             {
@@ -68,10 +103,15 @@
                 validator: function (value) {
                     return value.length > 3;
                 },
+                validating: function () {
+                    logText('form.inputs[' + form.inputs[0].optionalCustomNameOrSomething + '].validating');
+                },
                 error: function (value) {
+                    logText('form.inputs[' + form.inputs[0].optionalCustomNameOrSomething + '].error', TYPES.ERROR);
                     $inputUserNameStatus.text('Error validating ' + value).css({ color: 'red' }).show();
                 },
                 success: function (value) {
+                    logText('form.inputs[' + form.inputs[0].optionalCustomNameOrSomething + '].success', TYPES.SUCCESS);
                     $inputUserNameStatus.text('').hide();
                 }
             },
@@ -80,9 +120,11 @@
                 selector: $inputEmail,
                 validator: Api.isUniqueEmail,
                 validating: function (value) {
+                    logText('form.inputs[' + form.inputs[1].optionalCustomNameOrSomething + '].validating');
                     $inputEmailStatus.text('Checking if unique email').css({ color: 'grey' }).show();
                 },
                 error: function (value) {
+                    logText('form.inputs[' + form.inputs[1].optionalCustomNameOrSomething + '].error', TYPES.ERROR);
                     if (!value) {
                         $inputEmailStatus.text('Please insert valid email').css({ color: 'red' }).show();
                     } else {
@@ -90,6 +132,7 @@
                     }
                 },
                 success: function (value) {
+                    logText('form.inputs[' + form.inputs[1].optionalCustomNameOrSomething + '].success', TYPES.SUCCESS);
                     $inputEmailStatus.text('').hide();
                 }
             }
