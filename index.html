@@ -63,9 +63,11 @@
     var Api = {
         isUniqueEmail: function (email) {
             var deferred = $.Deferred();
+            var ms = Math.floor((Math.random() * 500) + 1);
             setTimeout(function () {
+                logText('fake api email validation took ' + ms + 'ms');
                 deferred.resolve(Formation.VALIDATORS.EMAIL.test($inputEmail.val()));
-            }, 250);
+            }, ms);
             return deferred.promise();
         }
     };
@@ -100,18 +102,18 @@
                 selector: function () {
                     return $inputUserName;
                 },
-                validator: function (value) {
+                validator: function (input, value) {
                     return value.length > 3;
                 },
-                validating: function () {
-                    logText('form.inputs[' + form.inputs[0].optionalCustomNameOrSomething + '].validating');
+                validating: function (input) {
+                    logText('form.inputs[' + input.optionalCustomNameOrSomething + '].validating');
                 },
-                error: function (value) {
-                    logText('form.inputs[' + form.inputs[0].optionalCustomNameOrSomething + '].error', TYPES.ERROR);
+                error: function (input, value) {
+                    logText('form.inputs[' + input.optionalCustomNameOrSomething + '].error', TYPES.ERROR);
                     $inputUserNameStatus.text('Error validating ' + value).css({ color: 'red' }).show();
                 },
-                success: function (value) {
-                    logText('form.inputs[' + form.inputs[0].optionalCustomNameOrSomething + '].success', TYPES.SUCCESS);
+                success: function (input, value) {
+                    logText('form.inputs[' + input.optionalCustomNameOrSomething + '].success', TYPES.SUCCESS);
                     $inputUserNameStatus.text('').hide();
                 }
             },
@@ -119,20 +121,20 @@
                 optionalCustomNameOrSomething: 'email',
                 selector: $inputEmail,
                 validator: Api.isUniqueEmail,
-                validating: function (value) {
-                    logText('form.inputs[' + form.inputs[1].optionalCustomNameOrSomething + '].validating');
+                validating: function (input, value) {
+                    logText('form.inputs[' + input.optionalCustomNameOrSomething + '].validating');
                     $inputEmailStatus.text('Checking if unique email').css({ color: 'grey' }).show();
                 },
-                error: function (value) {
-                    logText('form.inputs[' + form.inputs[1].optionalCustomNameOrSomething + '].error', TYPES.ERROR);
+                error: function (input, value) {
+                    logText('form.inputs[' + input.optionalCustomNameOrSomething + '].error', TYPES.ERROR);
                     if (!value) {
                         $inputEmailStatus.text('Please insert valid email').css({ color: 'red' }).show();
                     } else {
                         $inputEmailStatus.text(value + ' is already taken').css({ color: 'red' }).show();
                     }
                 },
-                success: function (value) {
-                    logText('form.inputs[' + form.inputs[1].optionalCustomNameOrSomething + '].success', TYPES.SUCCESS);
+                success: function (input, value) {
+                    logText('form.inputs[' + input.optionalCustomNameOrSomething + '].success', TYPES.SUCCESS);
                     $inputEmailStatus.text('').hide();
                 }
             }

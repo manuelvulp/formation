@@ -37,12 +37,20 @@ Formation.prototype.validate = function () {
     self._notValidatedInputs = [];
     self._promises = [];
 
+    if (self.selector) {
+        if (typeof(self.selector) === 'function') {
+            self._formSelector = self.selector();
+        } else {
+            self._formSelector = $(self.selector);
+        }
+    }
+
     $.each(self.inputs, function (i, input) {
         var selector;
         if (typeof(input.selector) === 'function') {
-            selector = input.selector();
+            selector = self._formSelector ? self._formSelector.find(input.selector()) : input.selector();
         } else {
-            selector = input.selector;
+            selector = self._formSelector ? self._formSelector.find(input.selector) : input.selector;
         }
         var value = selector.val();
         self._promises.push(self.handleValidator(input, value));
@@ -70,9 +78,9 @@ Formation.prototype.handleValidator = function (input, value) {
 
     if (typeof(input.validator) === 'function') {
         if (input.validating) {
-            input.validating(value);
+            input.validating(input, value);
         }
-        $.when(input.validator(value)).then(
+        $.when(input.validator(input, value)).then(
             function (response) {
                 response ? deferred.resolve(self.handleSuccess(input, value)) : deferred.resolve(self.handleError(input, value));
             }
@@ -86,13 +94,13 @@ Formation.prototype.handleValidator = function (input, value) {
 
 Formation.prototype.handleSuccess = function (input, value) {
     this._validatedInputs.push(input);
-    input.success ? input.success(value) : undefined;
+    input.success ? input.success(input, value) : undefined;
     return 1;
 };
 
 Formation.prototype.handleError = function (input, value) {
     this._notValidatedInputs.push(input);
-    input.error ? input.error(value) : undefined
+    input.error ? input.error(input, value) : undefined
     return 0;
 };
 
