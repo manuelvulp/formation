@@ -132,6 +132,8 @@ form.inputs: [
     }
 ]
 ```
+Method of how the input gets validated
+
 Any:
 * Regular expression
 * Function that returns true (successful validation) or false (unsuccessful validation)
@@ -165,7 +167,7 @@ form.inputs: [
     }
 ]
 ```
-Function which gets triggered once as input is being validated
+Function that gets triggered once as input is being validated
 ```javascript
 /**
  * @type {function} 
