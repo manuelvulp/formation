@@ -4,11 +4,24 @@ Formation aims to provide an easy way to validate forms on frontend
 
 ##Example
 Full example is also included in index.html .
+
+```html
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<!-- Replace with correct path -->
+<script type="text/javascript" src="/path/to/formation.js"></script>
+
+<form class="js-form">
+    <input type="username" class="js-username">
+    <input type="text" class="js-email">
+    <input type="submit">
+</form>
+```
+
 ```javascript
 var form = new Formation({
-    selector: $form,
+    selector: $('.js-form'),
     error: function (inputs) {
-        console.log('Failed to validate form');
+        console.log('Failed to validate form, ' + inputs.length + ' input(s) failed', inputs);
     },
     validating: function () {
         console.log('Validating form');
@@ -20,7 +33,7 @@ var form = new Formation({
         {
             optionalCustomNameOrSomething: 'username',
             selector: function () {
-                return $inputUserName;
+                return $('.js-username');
             },
             validator: function (input, value) {
                 return value.length > 3;
@@ -37,13 +50,15 @@ var form = new Formation({
         },
         {
             optionalCustomNameOrSomething: 'email',
-            selector: $inputEmail,
+            selector: '.js-email',
             validator: function (input, value) {
                 var deferred = $.Deferred();
                 $.ajax('http://example.api.com', {
                     data: { email: value }
                 }).done(function (isUnique) {
                     deferred.resolve(isUnique);
+                }).fail(function (isUnique) {
+                    deferred.reject();
                 });
                 return deferred.promise();
             },

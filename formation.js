@@ -56,13 +56,18 @@ Formation.prototype.validate = function () {
         self._promises.push(self.handleValidator(input, value));
     });
 
-    $.when.apply($, self._promises).then(function () {
-        if (self._validatedInputs.length === self.inputs.length) {
-            self.success();
-        } else {
+    $.when.apply($, self._promises).then(
+        function () {
+            if (self._validatedInputs.length === self.inputs.length) {
+                self.success();
+            } else {
+                self.error(self._notValidatedInputs);
+            }
+        },
+        function () {
             self.error(self._notValidatedInputs);
         }
-    }).always(function () {
+    ).always(function () {
         self._validating = false;
     });
 
@@ -83,6 +88,9 @@ Formation.prototype.handleValidator = function (input, value) {
         $.when(input.validator(input, value)).then(
             function (response) {
                 response ? deferred.resolve(self.handleSuccess(input, value)) : deferred.resolve(self.handleError(input, value));
+            },
+            function () {
+                deferred.reject(self.handleError(input, value));
             }
         );
     } else {

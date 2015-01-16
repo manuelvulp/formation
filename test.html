@@ -1,0 +1,86 @@
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="formation.js"></script>
+<style>
+
+    .console {
+        background: #333;
+        color: #EEE;
+        font-family: monospace;
+        padding: 20px;
+    }
+
+    .console p.success {
+        color: green;
+    }
+
+    .console p.error {
+        color: red;
+    }
+
+</style>
+<form class="js-form">
+    <input type="username" class="js-username">
+    <input type="text" class="js-email">
+    <input type="submit">
+</form>
+
+<script>
+
+var form = new Formation({
+    selector: $('.js-form'),
+    error: function (inputs) {
+        console.log('Failed to validate form, ' + inputs.length + ' input(s) failed', inputs);
+    },
+    validating: function () {
+        console.log('Validating form');
+    },
+    success: function () {
+        console.log('Form validated');
+    },
+    inputs: [
+        {
+            optionalCustomNameOrSomething: 'username',
+            selector: function () {
+                return $('.js-username');
+            },
+            validator: function (input, value) {
+                return value.length > 3;
+            },
+            validating: function (input, value) {
+                console.log('Validating ' + input.optionalCustomNameOrSomething);
+            },
+            error: function (input, value) {
+                console.log('Failed to validate ' + input.optionalCustomNameOrSomething);
+            },
+            success: function (input, value) {
+                console.log('Validated ' + input.optionalCustomNameOrSomething);
+            }
+        },
+        {
+            optionalCustomNameOrSomething: 'email',
+            selector: '.js-email',
+            validator: function (input, value) {
+                var deferred = $.Deferred();
+                $.ajax('http://example.api.com', {
+                    data: { email: value }
+                }).done(function (isUnique) {
+                    deferred.resolve(isUnique);
+                }).fail(function (isUnique) {
+                    deferred.reject();
+                });
+                return deferred.promise();
+            },
+            validating: function (input, value) {
+                console.log('Validating ' + input.optionalCustomNameOrSomething);
+            },
+            error: function (input, value) {
+                console.log('Failed to validate ' + input.optionalCustomNameOrSomething);
+            },
+            success: function (input, value) {
+                console.log('Validated ' + input.optionalCustomNameOrSomething);
+            }
+        }
+    ]
+});
+
+</script>
