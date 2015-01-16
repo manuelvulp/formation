@@ -67,7 +67,7 @@ Just include formation.js in your scripts after jQuery.
 
 ## API
 
-The form element. It's not really needed but if present, any of the input selectors which are defined as string, will be searched from given form element.
+The form element. It's not really needed but if present, any of the input selectors will be searched from given form element.
 ```javascript
 /**
  * @type {string|jQuery selector|function}
